@@ -40,54 +40,50 @@ namespace ScriptureJournal.Pages.Scriptures
 
         public async Task OnGetAsync(string sortOrder)
         {
-            IQueryable<string> genreQuery = from s in _context.Scripture
-                                            orderby s.Canon
-                                            select s.Canon;
+            //IQueryable<string> genreQuery = from s in _context.Scripture
+            //                                orderby s.Canon
+            //                                select s.Canon;
 
-            var Scriptures = from s in _context.Scripture
-                             select s;
+            //var Scriptures = from s in _context.Scripture
+            //                 select s;
+
+            CanonSort = String.IsNullOrEmpty(sortOrder) ? "canon" : "";
+            DateSort = sortOrder == "Date" ? "date_desc" : "Date";
+
+            IQueryable<Scripture> scriptures = from s in _context.Scripture
+                                              select s;
 
             if (!string.IsNullOrEmpty(SearchString))
             {
-                Scriptures = Scriptures.Where(s => s.Canon.Contains(SearchString));
+                scriptures = scriptures.Where(s => s.Canon.Contains(SearchString));
             }
 
             if(!string.IsNullOrEmpty(SearchNotes))
             {
-                Scriptures = Scriptures.Where(s => s.Notes.Contains(SearchNotes));
+                scriptures = scriptures.Where(s => s.Notes.Contains(SearchNotes));
             }
 
-            Canon = new SelectList(await genreQuery.Distinct().ToListAsync());
-            Scripture = await Scriptures.ToListAsync();
+            //Canon = new SelectList(await genreQuery.Distinct().ToListAsync());
+            //Scripture = await Scriptures.ToListAsync();
 
-
-
-
-
-            // using System;
-            CanonSort = String.IsNullOrEmpty(sortOrder) ? "canon" : "";
-            DateSort = sortOrder == "Date" ? "date_desc" : "Date";
-
-            IQueryable<Scripture> scripture = from s in _context.Scripture
-                                               select s;
 
             switch (sortOrder)
             {
                 case "canon":
-                    scripture = scripture.OrderByDescending(s => s.Canon);
+                    scriptures = scriptures.OrderByDescending(s => s.Canon);
                     break;
                 case "Date":
-                    scripture = scripture.OrderBy(s => s.CreateDate);
+                    scriptures = scriptures.OrderBy(s => s.CreateDate);
                     break;
                 case "date_desc":
-                    scripture = scripture.OrderByDescending(s => s.CreateDate);
+                    scriptures = scriptures.OrderByDescending(s => s.CreateDate);
                     break;
                 default:
-                    scripture = scripture.OrderBy(s => s.Canon);
+                    scriptures = scriptures.OrderBy(s => s.Canon);
                     break;
             }
 
-            Scripture = await scripture.AsNoTracking().ToListAsync();
+            Scripture = await scriptures.AsNoTracking().ToListAsync();
 
         }
     }
